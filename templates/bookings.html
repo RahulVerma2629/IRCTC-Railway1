@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-list-alt me-2"></i> My Bookings</h4>
+        </div>
+        <div class="card-body">
+            {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Date</th>
+                                <th>Train</th>
+                                <th>Route</th>
+                                <th>Passengers</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                                <tr>
+                                    <td>{{ booking.booking.booking_number }}</td>
+                                    <td>
+                                        {{ booking.schedule.date.strftime('%d %b, %Y') }}<br>
+                                        <small class="text-muted">{{ booking.train.departure_time.strftime('%H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        {{ booking.train.name }}<br>
+                                        <small class="text-muted">{{ booking.train.number }}</small>
+                                    </td>
+                                    <td>
+                                        {{ booking.origin.code }} → {{ booking.destination.code }}<br>
+                                        <small class="text-muted">{{ booking.origin.name }} to {{ booking.destination.name }}</small>
+                                    </td>
+                                    <td>{{ booking.booking.total_passengers }}</td>
+                                    <td>${{ booking.booking.total_amount }}</td>
+                                    <td>
+                                        <span class="badge booking-status-{{ booking.booking.status.lower() }}">
+                                            {{ booking.booking.status | capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('ticket', booking_id=booking.booking.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-ticket-alt"></i>
+                                            </a>
+                                            <a href="{{ url_for('download_ticket', booking_id=booking.booking.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            {% if booking.booking.status == 'confirmed' %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="confirmCancellation('{{ booking.booking.id }}', '{{ booking.booking.booking_number }}')">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <form id="cancel-form-{{ booking.booking.id }}" action="{{ url_for('cancel_booking', booking_id=booking.booking.id) }}" method="post" class="d-none"></form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> You don't have any bookings yet.
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('search') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i> Search Trains
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if bookings %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Booking Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-exchange-alt fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6>Cancellation Policy</h6>
+                                <p class="small text-muted">Bookings can be cancelled up to 4 hours before departure for a full refund.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-user-edit fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6>Passenger Changes</h6>
+                                <p class="small text-muted">Passenger details can be modified up to 24 hours before departure.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-question-circle fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6>Need Help?</h6>
+                                <p class="small text-muted">Contact our support team at support@railwaybooking.com for assistance.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

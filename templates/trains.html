@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Journey Details Banner -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <div style="background-color: var(--irctc-blue); color: white; position: relative; padding: 20px;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">
+                        <i class="fas fa-train me-2"></i> Available Trains
+                    </h4>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="d-flex flex-column align-items-center me-3">
+                            <span class="badge rounded-pill bg-light text-dark mb-1">FROM</span>
+                            <h5 class="mb-0">{{ origin.name }}</h5>
+                            <span class="badge bg-danger mt-1">{{ origin.code }}</span>
+                        </div>
+                        <div class="mx-3">
+                            <i class="fas fa-arrow-right fa-lg"></i>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <span class="badge rounded-pill bg-light text-dark mb-1">TO</span>
+                            <h5 class="mb-0">{{ destination.name }}</h5>
+                            <span class="badge bg-success mt-1">{{ destination.code }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="bg-white text-dark rounded p-2 text-center mb-2" style="min-width: 180px;">
+                        <i class="fas fa-calendar-alt me-1" style="color: var(--irctc-blue);"></i>
+                        <strong>{{ date.strftime('%d %b %Y') }}</strong>
+                        <div class="small text-muted">{{ date.strftime('%A') }}</div>
+                    </div>
+                    <a href="{{ url_for('search') }}" class="btn btn-sm" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">
+                        <i class="fas fa-search me-1"></i> Modify Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Train Filter Options -->
+        <div class="bg-light border-bottom p-2">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <span class="badge bg-light text-dark border me-1">
+                                <i class="fas fa-filter me-1" style="color: var(--irctc-blue);"></i> Filters
+                            </span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-white text-dark border border-secondary small">Departure Time</span>
+                            <span class="badge bg-white text-dark border border-secondary small">Duration</span>
+                            <span class="badge bg-white text-dark border border-secondary small">Class</span>
+                            <span class="badge bg-white text-dark border border-secondary small">Price</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="small text-muted">{{ trains|length if trains else 0 }} trains found</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Train List -->
+        <div class="card-body p-0">
+            <div class="train-list p-3">
+                {% if trains %}
+                    {% for train_info in trains %}
+                        <div class="card mb-3 border-0 shadow-sm train-card" style="border-radius: 8px; overflow: hidden;">
+                            <!-- Train Type Badge -->
+                            <div class="position-absolute" style="top: 15px; right: 15px;">
+                                {% if 'Express' in train_info.train.name %}
+                                    <span class="badge" style="background-color: var(--irctc-red); color: white;">Express</span>
+                                {% elif 'Shatabdi' in train_info.train.name %}
+                                    <span class="badge" style="background-color: var(--irctc-blue); color: white;">Shatabdi</span>
+                                {% elif 'Rajdhani' in train_info.train.name %}
+                                    <span class="badge" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">Rajdhani</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Passenger</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <h5 class="card-title mb-1" style="color: var(--irctc-blue);">{{ train_info.train.name }}</h5>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-light text-dark border me-2">{{ train_info.train.number }}</span>
+                                            <span class="small text-muted">Runs Daily</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="text-center me-3">
+                                                <h5 class="mb-0" style="color: var(--irctc-blue);">{{ train_info.train.departure_time.strftime('%H:%M') }}</h5>
+                                                <small class="badge bg-light text-dark border">{{ origin.code }}</small>
+                                            </div>
+                                            <div class="flex-grow-1 position-relative px-4">
+                                                <div style="height: 2px; background-color: #ccc; width: 100%;"></div>
+                                                <div class="position-absolute top-50 start-50 translate-middle bg-white px-2">
+                                                    <!-- Calculate journey duration -->
+                                                    {% set dep_time = train_info.train.departure_time %}
+                                                    {% set arr_time = train_info.train.arrival_time %}
+                                                    {% set duration_mins = (arr_time.hour * 60 + arr_time.minute) - (dep_time.hour * 60 + dep_time.minute) %}
+                                                    {% if duration_mins < 0 %}
+                                                        {% set duration_mins = duration_mins + 24*60 %}
+                                                    {% endif %}
+                                                    {% set duration_hrs = (duration_mins // 60) %}
+                                                    {% set duration_mins = duration_mins % 60 %}
+                                                    <small class="text-muted">{{ duration_hrs }}h {{ duration_mins }}m</small>
+                                                </div>
+                                            </div>
+                                            <div class="text-center ms-3">
+                                                <h5 class="mb-0" style="color: var(--irctc-blue);">{{ train_info.train.arrival_time.strftime('%H:%M') }}</h5>
+                                                <small class="badge bg-light text-dark border">{{ destination.code }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h5 class="mb-0" style="color: var(--irctc-blue);"><i class="fas fa-rupee-sign me-1"></i>{{ train_info.train.price }}</h5>
+                                        <div class="d-flex justify-content-center mt-1">
+                                            <span class="badge rounded-pill bg-success me-1">
+                                                <i class="fas fa-chair me-1"></i> {{ train_info.available_seats }}
+                                            </span>
+                                            <span class="small text-muted">available</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <div class="d-flex flex-column align-items-end">
+                                            <div class="mb-2">
+                                                {% if train_info.available_seats > 20 %}
+                                                    <span class="badge rounded-pill" style="background-color: var(--irctc-green);">AVAILABLE</span>
+                                                {% elif train_info.available_seats > 5 %}
+                                                    <span class="badge rounded-pill" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">LIMITED</span>
+                                                {% else %}
+                                                    <span class="badge rounded-pill" style="background-color: var(--irctc-red);">FEW SEATS LEFT</span>
+                                                {% endif %}
+                                            </div>
+                                            <a href="{{ url_for('select_seat', schedule_id=train_info.schedule.id) }}" class="btn" style="background-color: var(--irctc-blue); color: white;">
+                                                <i class="fas fa-ticket-alt me-1"></i> Book Ticket
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Train Features -->
+                                <div class="mt-3 pt-2 border-top">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="d-flex flex-wrap gap-3">
+                                                <div class="small">
+                                                    <i class="fas fa-wifi me-1" style="color: var(--irctc-blue);"></i> Free WiFi
+                                                </div>
+                                                <div class="small">
+                                                    <i class="fas fa-plug me-1" style="color: var(--irctc-blue);"></i> Charging Points
+                                                </div>
+                                                <div class="small">
+                                                    <i class="fas fa-utensils me-1" style="color: var(--irctc-blue);"></i> Pantry Car
+                                                </div>
+                                                <div class="small">
+                                                    <i class="fas fa-bed me-1" style="color: var(--irctc-blue);"></i> Bedroll Included
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <span class="badge rounded-pill bg-light text-dark border">
+                                                <i class="fas fa-thumbs-up me-1" style="color: var(--irctc-green);"></i> 4.3/5 Rating
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <img src="https://www.irctc.co.in/nget/assets/images/no_result.png" alt="No Results" style="max-width: 100px; opacity: 0.5;">
+                        <h5 style="color: var(--irctc-blue);" class="mt-3">No Trains Available</h5>
+                        <p class="text-muted">No trains available for this route on the selected date.</p>
+                        <a href="{{ url_for('search') }}" class="btn" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">
+                            <i class="fas fa-search me-1"></i> Try Different Route or Date
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Travel Information Card -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <div class="card-header" style="background-color: var(--irctc-blue); color: white; position: relative;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Railway Travel Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">{{ origin.name }} Station</h6>
+                            <p class="small text-muted mb-0">Major railway station with amenities including waiting lounges, food stalls, and ATMs. Free drinking water available.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--irctc-blue-dark);">
+                            <i class="fas fa-suitcase"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">Baggage Allowance</h6>
+                            <p class="small text-muted mb-0">Passengers can carry up to 35kg (First AC), 25kg (Second AC), or 20kg (Sleeper) of luggage. Excess baggage must be booked.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-wheelchair"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">Accessibility</h6>
+                            <p class="small text-muted mb-0">Wheelchair assistance available through Yatri Seva. Battery cars available at major stations. Divyang quota available for special seating.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Travel Tips -->
+            <div class="mt-3 pt-3 border-top">
+                <h6 style="color: var(--irctc-blue);">General Travel Tips</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="small">
+                            <li class="mb-1">Arrive at the station at least 30 minutes before departure.</li>
+                            <li class="mb-1">Carry a valid ID proof matching your ticket details.</li>
+                            <li class="mb-1">Use the IRCTC Rail Connect app for real-time train status.</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="small">
+                            <li class="mb-1">For security concerns, contact the Railway Protection Force at 139.</li>
+                            <li class="mb-1">Bedrolls are provided in AC classes and can be requested in Sleeper class.</li>
+                            <li class="mb-1">E-catering services can be ordered through the IRCTC website or app.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popular Trains Section -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <div class="card-header bg-light">
+            <h5 class="mb-0" style="color: var(--irctc-blue);"><i class="fas fa-star me-2"></i> Popular Indian Trains</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="position-relative">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Rajdhani_Express.jpg/640px-Rajdhani_Express.jpg" class="card-img-top" alt="Rajdhani Express" style="height: 140px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">Premium</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title" style="color: var(--irctc-blue);">Rajdhani Express</h6>
+                            <p class="card-text small">Premium fully air-conditioned superfast trains connecting major cities to New Delhi with limited stops and complimentary meals.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="position-relative">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Bhopal_Shatabdi_Express_approaching_Mathura_Junction.jpg" class="card-img-top" alt="Shatabdi Express" style="height: 140px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge" style="background-color: var(--irctc-blue); color: white;">High-Speed</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title" style="color: var(--irctc-blue);">Shatabdi Express</h6>
+                            <p class="card-text small">Intercity day trains with chair car seating, providing convenient same-day return journeys between major cities with superior service.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="position-relative">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Sampoorna_Kranti_Express.jpg/640px-Sampoorna_Kranti_Express.jpg" class="card-img-top" alt="Duronto Express" style="height: 140px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge" style="background-color: var(--irctc-green); color: white;">Non-Stop</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title" style="color: var(--irctc-blue);">Duronto Express</h6>
+                            <p class="card-text small">Non-stop long-distance trains connecting metro cities to various destinations with minimal technical stops and catering services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

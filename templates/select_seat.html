@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-chair me-2"></i> Select Your Seats</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h5>{{ train.name }} ({{ train.number }})</h5>
+                    <p class="mb-0">
+                        <i class="fas fa-map-marker-alt text-danger"></i> {{ train.origin_station.name }} ({{ train.origin_station.code }})
+                        <i class="fas fa-arrow-right mx-2"></i>
+                        <i class="fas fa-map-marker-alt text-success"></i> {{ train.destination_station.name }} ({{ train.destination_station.code }})
+                    </p>
+                    <p class="text-muted">
+                        Date: {{ schedule.date.strftime('%A, %B %d, %Y') }} | 
+                        Departure: {{ train.departure_time.strftime('%H:%M') }} | 
+                        Arrival: {{ train.arrival_time.strftime('%H:%M') }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="mb-2">
+                        <span class="badge bg-success">{{ schedule.available_seats }} seats available</span>
+                    </div>
+                    <h5 class="mb-0">${{ train.price }} <small class="text-muted">per passenger</small></h5>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="seat-legend d-flex justify-content-center gap-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="seat available me-2" style="pointer-events: none; width: 30px; height: 30px;"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="seat selected me-2" style="pointer-events: none; width: 30px; height: 30px;"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="seat booked me-2" style="pointer-events: none; width: 30px; height: 30px;"></div>
+                            <span>Booked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form action="{{ url_for('booking_summary') }}" method="post" id="seat-selection-form">
+                <input type="hidden" name="schedule_id" value="{{ schedule.id }}">
+                <input type="hidden" name="selected_seats" id="selected_seats">
+                
+                <div class="seat-map-container">
+                    <div class="train-front text-center mb-2">
+                        <div class="bg-secondary text-white d-inline-block px-5 py-2 rounded">
+                            <i class="fas fa-train me-2"></i> Front of Train
+                        </div>
+                    </div>
+                    
+                    <div class="seat-map">
+                        {% for row, row_seats in seat_map.items() %}
+                            <div class="seat-row">
+                                <div class="row-label me-2 d-flex align-items-center">
+                                    <span class="fw-bold">{{ row }}</span>
+                                </div>
+                                <div class="seat-group">
+                                    {% for seat in row_seats %}
+                                        <div class="seat {% if seat.is_booked %}booked{% else %}available{% endif %}" 
+                                             data-seat-id="{{ seat.id }}" 
+                                             data-seat-number="{{ seat.seat_number }}">
+                                            {{ seat.seat_number }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="booking-summary mt-4 p-3 bg-light rounded">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Booking Summary</h5>
+                            <p class="mb-1">Selected Seats: <span id="selected-count">0</span></p>
+                            <div id="selected-seats-display" class="mb-2"></div>
+                            <input type="hidden" id="price-per-seat" value="{{ train.price }}">
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h5>Total Price: $<span id="total-price">0.00</span></h5>
+                            <button type="submit" class="btn btn-primary mt-2" id="submit-seats" disabled>
+                                <i class="fas fa-ticket-alt me-1"></i> Continue to Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Seating Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-wheelchair fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Accessible Seating</h6>
+                            <p class="small text-muted">Accessible seats are available in rows A and B.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-utensils fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Food Service</h6>
+                            <p class="small text-muted">Food and beverage service is available on this train.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-plug fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Power Outlets</h6>
+                            <p class="small text-muted">All seats are equipped with power outlets for your devices.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

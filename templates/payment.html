@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Payment Header -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <div style="background-color: var(--irctc-blue); color: white; position: relative; padding: 20px;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <img src="https://www.irctc.co.in/nget/assets/images/logo.png" alt="IRCTC Logo" style="height: 40px; filter: brightness(0) invert(1);" class="me-3">
+                </div>
+                <div class="col">
+                    <h4 class="mb-0"><i class="fas fa-credit-card me-2"></i> IRCTC Payment Gateway</h4>
+                    <p class="mb-0 small">Safe and Secure Transaction</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Journey Details -->
+        <div class="card-body p-4">
+            <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--irctc-blue);">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="min-width: 45px; height: 45px; border-radius: 50%; background-color: var(--irctc-blue); color: white; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 style="color: var(--irctc-blue);">{{ train.name }} <span class="badge bg-light text-dark border">{{ train.number }}</span></h5>
+                                <div>
+                                    <span class="badge bg-danger">{{ origin.code }}</span>
+                                    <i class="fas fa-arrow-right mx-2"></i>
+                                    <span class="badge bg-success">{{ destination.code }}</span>
+                                    <span class="small ms-2 text-muted">{{ origin.name }} to {{ destination.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="me-4">
+                                <div class="small text-muted mb-1">DATE</div>
+                                <div><i class="fas fa-calendar-alt me-1" style="color: var(--irctc-blue);"></i> {{ schedule.date.strftime('%d %b %Y') }}</div>
+                            </div>
+                            <div class="me-4">
+                                <div class="small text-muted mb-1">DEPARTURE</div>
+                                <div><i class="fas fa-clock me-1" style="color: var(--irctc-blue);"></i> {{ train.departure_time.strftime('%H:%M') }}</div>
+                            </div>
+                            <div>
+                                <div class="small text-muted mb-1">ARRIVAL</div>
+                                <div><i class="fas fa-clock me-1" style="color: var(--irctc-blue);"></i> {{ train.arrival_time.strftime('%H:%M') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-end">
+                        <div class="d-inline-block text-center p-3" style="border: 1px dashed var(--irctc-blue); border-radius: 8px;">
+                            <div class="small text-muted mb-1">FARE PER PASSENGER</div>
+                            <h5 style="color: var(--irctc-blue);"><i class="fas fa-rupee-sign me-1"></i> {{ train.price }}</h5>
+                            <div class="small">{{ seats|length }} Passenger(s)</div>
+                            <div style="height: 1px; background-color: #dee2e6; margin: 8px 0;"></div>
+                            <div class="small text-muted">TOTAL FARE</div>
+                            <h4 style="color: var(--irctc-blue);"><i class="fas fa-rupee-sign me-1"></i> {{ total_amount }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Payment Methods -->
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header" style="background-color: var(--irctc-blue-light); color: white;">
+                            <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i> Payment Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Payment Tabs -->
+                            <ul class="nav nav-tabs mb-4" id="paymentTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="card-tab" data-bs-toggle="tab" data-bs-target="#card" type="button" role="tab" aria-selected="true">
+                                        <i class="fas fa-credit-card me-1"></i> Credit/Debit Card
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="upi-tab" data-bs-toggle="tab" data-bs-target="#upi" type="button" role="tab" aria-selected="false">
+                                        <img src="https://www.npci.org.in/images/upi-logo.svg" alt="UPI" style="height: 16px;"> UPI
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="netbanking-tab" data-bs-toggle="tab" data-bs-target="#netbanking" type="button" role="tab" aria-selected="false">
+                                        <i class="fas fa-university me-1"></i> Net Banking
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="paymentTabsContent">
+                                <!-- Credit/Debit Card Payment -->
+                                <div class="tab-pane fade show active" id="card" role="tabpanel" aria-labelledby="card-tab">
+                                    <form action="{{ url_for('process_payment') }}" method="post">
+                                        <input type="hidden" name="schedule_id" value="{{ schedule.id }}">
+                                        
+                                        {% for i in range(seats|length) %}
+                                            <input type="hidden" name="seat_id[]" value="{{ seats[i].id }}">
+                                            <input type="hidden" name="passenger_name" value="{{ form_data.passenger_name[i] }}">
+                                            <input type="hidden" name="passenger_age" value="{{ form_data.passenger_age[i] }}">
+                                            <input type="hidden" name="passenger_gender" value="{{ form_data.passenger_gender[i] }}">
+                                        {% endfor %}
+                                        
+                                        <div class="mb-3">
+                                            <label for="card_number" class="form-label">Card Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                                <input type="text" class="form-control" id="card_number" name="card_number" placeholder="XXXX XXXX XXXX XXXX" required>
+                                            </div>
+                                            <div class="form-text">For testing, use any 16-digit number.</div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="expiry_date" class="form-label">Expiry Date</label>
+                                                <input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="cvv" class="form-label">CVV/CVC</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="cvv" name="cvv" placeholder="•••" required>
+                                                    <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="3-digit code on the back of your card">
+                                                        <i class="fas fa-question-circle"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label for="name_on_card" class="form-label">Name on Card</label>
+                                            <input type="text" class="form-control" id="name_on_card" name="name_on_card" placeholder="As it appears on your card" required>
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn" style="background-color: var(--irctc-blue); color: white; font-weight: 600; height: 50px;">
+                                                <i class="fas fa-lock me-2"></i> Pay <i class="fas fa-rupee-sign mx-1"></i> {{ total_amount }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <!-- UPI Payment -->
+                                <div class="tab-pane fade" id="upi" role="tabpanel" aria-labelledby="upi-tab">
+                                    <form action="{{ url_for('process_payment') }}" method="post">
+                                        <input type="hidden" name="schedule_id" value="{{ schedule.id }}">
+                                        
+                                        {% for i in range(seats|length) %}
+                                            <input type="hidden" name="seat_id[]" value="{{ seats[i].id }}">
+                                            <input type="hidden" name="passenger_name" value="{{ form_data.passenger_name[i] }}">
+                                            <input type="hidden" name="passenger_age" value="{{ form_data.passenger_age[i] }}">
+                                            <input type="hidden" name="passenger_gender" value="{{ form_data.passenger_gender[i] }}">
+                                        {% endfor %}
+                                        
+                                        <div class="text-center mb-4">
+                                            <div class="row justify-content-center mb-4">
+                                                <div class="col-auto">
+                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI" style="height: 60px;">
+                                                </div>
+                                                <div class="col-auto">
+                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="PayTM" style="height: 50px;">
+                                                </div>
+                                                <div class="col-auto">
+                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style="height: 50px;">
+                                                </div>
+                                                <div class="col-auto">
+                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe" style="height: 50px;">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label for="upi_id" class="form-label">Enter UPI ID</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="upi_id" name="upi_id" placeholder="username@upi">
+                                                    <span class="input-group-text"style="color: var(--irctc-blue);">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <small class="text-muted">Example: yourname@okicici or 9876543210@upi</small>
+                                            </div>
+                                            
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn" style="background-color: var(--irctc-blue); color: white; font-weight: 600; height: 50px;">
+                                                    <i class="fas fa-lock me-2"></i> Pay <i class="fas fa-rupee-sign mx-1"></i> {{ total_amount }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <!-- Net Banking -->
+                                <div class="tab-pane fade" id="netbanking" role="tabpanel" aria-labelledby="netbanking-tab">
+                                    <form action="{{ url_for('process_payment') }}" method="post">
+                                        <input type="hidden" name="schedule_id" value="{{ schedule.id }}">
+                                        
+                                        {% for i in range(seats|length) %}
+                                            <input type="hidden" name="seat_id[]" value="{{ seats[i].id }}">
+                                            <input type="hidden" name="passenger_name" value="{{ form_data.passenger_name[i] }}">
+                                            <input type="hidden" name="passenger_age" value="{{ form_data.passenger_age[i] }}">
+                                            <input type="hidden" name="passenger_gender" value="{{ form_data.passenger_gender[i] }}">
+                                        {% endfor %}
+                                        
+                                        <div class="mb-4">
+                                            <label class="form-label">Select Your Bank</label>
+                                            <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+                                                <div class="col">
+                                                    <div class="form-check p-0">
+                                                        <input class="btn-check" type="radio" name="bank" id="sbi" value="sbi" checked>
+                                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" for="sbi" style="min-height: 80px;">
+                                                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-logo.svg" alt="SBI" style="height: 30px;">
+                                                            <span class="small mt-1">SBI</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-check p-0">
+                                                        <input class="btn-check" type="radio" name="bank" id="hdfc" value="hdfc">
+                                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" for="hdfc" style="min-height: 80px;">
+                                                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg" alt="HDFC" style="height: 20px;">
+                                                            <span class="small mt-1">HDFC Bank</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-check p-0">
+                                                        <input class="btn-check" type="radio" name="bank" id="icici" value="icici">
+                                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" for="icici" style="min-height: 80px;">
+                                                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg" alt="ICICI" style="height: 25px;">
+                                                            <span class="small mt-1">ICICI Bank</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-check p-0">
+                                                        <input class="btn-check" type="radio" name="bank" id="axis" value="axis">
+                                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-2" for="axis" style="min-height: 80px;">
+                                                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg" alt="Axis Bank" style="height: 20px;">
+                                                            <span class="small mt-1">Axis Bank</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <select class="form-select" name="other_banks">
+                                                    <option selected disabled>Other Banks</option>
+                                                    <option>Bank of Baroda</option>
+                                                    <option>Punjab National Bank</option>
+                                                    <option>Canara Bank</option>
+                                                    <option>Bank of India</option>
+                                                    <option>Union Bank of India</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn" style="background-color: var(--irctc-blue); color: white; font-weight: 600; height: 50px;">
+                                                <i class="fas fa-lock me-2"></i> Pay <i class="fas fa-rupee-sign mx-1"></i> {{ total_amount }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header" style="background-color: var(--irctc-blue-light); color: white;">
+                            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i> Fare Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="fare-details">
+                                <div class="mb-1 d-flex justify-content-between">
+                                    <span>Base Fare ({{ seats|length }} passenger)</span>
+                                    <span><i class="fas fa-rupee-sign"></i> {{ train.price * seats|length }}</span>
+                                </div>
+                                <div class="mb-1 d-flex justify-content-between">
+                                    <span>Reservation Charge</span>
+                                    <span><i class="fas fa-rupee-sign"></i> 20.00</span>
+                                </div>
+                                <div class="mb-1 d-flex justify-content-between">
+                                    <span>Superfast Charge</span>
+                                    <span><i class="fas fa-rupee-sign"></i> 45.00</span>
+                                </div>
+                                <div class="mb-1 d-flex justify-content-between">
+                                    <span>GST</span>
+                                    <span><i class="fas fa-rupee-sign"></i> 30.00</span>
+                                </div>
+                                <div class="mb-2 d-flex justify-content-between">
+                                    <span>Catering Charge</span>
+                                    <span><i class="fas fa-rupee-sign"></i> 0.00</span>
+                                </div>
+                                
+                                <div style="border-top: 1px dashed #dee2e6; margin: 10px 0; padding-top: 10px;">
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total Amount</span>
+                                        <span style="color: var(--irctc-blue); font-size: 1.2rem;"><i class="fas fa-rupee-sign"></i> {{ total_amount }}</span>
+                                    </div>
+                                    <small class="text-muted d-block text-end">Inclusive of all taxes</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Passenger Breakdown -->
+                            <div class="passenger-details mt-4">
+                                <h6 style="color: var(--irctc-blue);">Passenger Details</h6>
+                                {% for i in range(seats|length) %}
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>{{ form_data.passenger_name[i] }} ({{ form_data.passenger_age[i] }})</span>
+                                    <span class="text-muted">Seat: {{ seats[i].seat_number }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- IRCTC Benefits -->
+                            <div class="mt-4 p-3" style="background-color: rgba(0, 82, 159, 0.1); border-radius: 8px;">
+                                <h6 style="color: var(--irctc-blue);"><i class="fas fa-shield-alt me-2"></i> Payment Protection</h6>
+                                <ul class="small mb-0 ps-3">
+                                    <li class="mb-1">IRCTC Verified & Secure Payment</li>
+                                    <li class="mb-1">Free Cancellation up to 4 hours before departure</li>
+                                    <li class="mb-1">24/7 Customer Support at 139</li>
+                                    <li class="mb-0">Protection Against Fraud</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

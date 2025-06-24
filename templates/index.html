@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <div style="position: relative; display: inline-block; margin-bottom: 1rem;">
+            <div class="indian-flag-colors me-2" style="position: absolute; left: -40px; top: 50%; transform: translateY(-50%); width: 30px; height: 20px;">
+                <div class="flag-color saffron"></div>
+                <div class="flag-color white"></div>
+                <div class="flag-color green"></div>
+            </div>
+            <i class="fas fa-train fa-2x" style="color: var(--irctc-yellow);"></i>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">Welcome to Indian Railways <span style="font-size: 0.6em; color: var(--irctc-yellow);">(IRCTC)</span></h1>
+        <p class="lead mb-4">Experience the pride of the nation - connecting destinations, connecting people</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('search') }}" class="btn btn-lg" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">
+                <i class="fas fa-search me-2"></i> Find Trains
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-lg btn-outline-light">
+                <i class="fas fa-user-plus me-2"></i> Register
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Search Box -->
+<div class="container">
+    <div class="card shadow mb-5 border-0" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-header text-white" style="background-color: var(--irctc-blue); border: none; position: relative;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            <h4 class="mb-0 d-flex align-items-center">
+                <img src="https://www.irctc.co.in/nget/assets/images/logo.png" alt="IRCTC Logo" style="height: 30px; margin-right: 10px; filter: brightness(0) invert(1);">
+                <span class="ms-2"><i class="fas fa-search me-2"></i> Book Your Journey</span>
+            </h4>
+        </div>
+        <div class="card-body" style="background-color: #f8f9fa;">
+            <form action="{{ url_for('search') }}" method="post" onsubmit="return validateSearchForm()">
+                {{ form.hidden_tag() }}
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            {{ form.origin(class="form-select", id="origin", placeholder="From") }}
+                            <label for="origin"><i class="fas fa-map-marker-alt text-danger me-1"></i> From Station</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            {{ form.destination(class="form-select", id="destination", placeholder="To") }}
+                            <label for="destination"><i class="fas fa-map-marker-alt text-success me-1"></i> To Station</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            {{ form.date(class="form-control", id="date", type="date") }}
+                            <label for="date"><i class="fas fa-calendar-alt me-1"></i> Journey Date</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 col-6 mx-auto mt-4">
+                    <button type="submit" class="btn btn-lg" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark); font-weight: 600;">
+                        <i class="fas fa-search me-2"></i> Find Trains
+                    </button>
+                </div>
+                <div id="search-error" class="alert alert-danger mt-3 d-none"></div>
+            </form>
+            
+            <div class="row mt-4 g-3">
+                <div class="col-md-3">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" style="color: var(--irctc-blue);">
+                        <span class="badge rounded-pill" style="background-color: var(--irctc-yellow);">
+                            <i class="fas fa-ticket-alt"></i>
+                        </span>
+                        <span class="ms-2">PNR Status</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" style="color: var(--irctc-blue);">
+                        <span class="badge rounded-pill" style="background-color: var(--irctc-yellow);">
+                            <i class="fas fa-train"></i>
+                        </span>
+                        <span class="ms-2">Train Schedule</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" style="color: var(--irctc-blue);">
+                        <span class="badge rounded-pill" style="background-color: var(--irctc-yellow);">
+                            <i class="fas fa-rupee-sign"></i>
+                        </span>
+                        <span class="ms-2">Fare Enquiry</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" style="color: var(--irctc-blue);">
+                        <span class="badge rounded-pill" style="background-color: var(--irctc-yellow);">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                        <span class="ms-2">Station Info</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="d-inline-block position-relative">
+                <span class="badge p-2" style="background-color: var(--irctc-blue); position: absolute; top: -15px; left: -15px; z-index: -1; width: 40px; height: 40px; border-radius: 50%;"></span>
+                <h2 class="mb-0" style="color: var(--irctc-blue);">Why Choose Indian Railways?</h2>
+            </div>
+            <div class="mt-2" style="width: 150px; height: 4px; background-color: var(--irctc-yellow); margin: 0 auto;"></div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                    <div style="height: 8px; background-color: var(--irctc-blue);"></div>
+                    <div class="card-body text-center p-4">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; border: 2px solid var(--irctc-blue);">
+                            <i class="fas fa-bolt fa-2x" style="color: var(--irctc-blue);"></i>
+                        </div>
+                        <h4 style="color: var(--irctc-blue);">Tatkal Booking</h4>
+                        <p>Get tickets for urgent and last-minute travel plans with our special Tatkal booking system.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                    <div style="height: 8px; background-color: var(--irctc-yellow);"></div>
+                    <div class="card-body text-center p-4">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; border: 2px solid var(--irctc-yellow);">
+                            <i class="fas fa-shield-alt fa-2x" style="color: var(--irctc-yellow);"></i>
+                        </div>
+                        <h4 style="color: var(--irctc-blue);">Secure Payments</h4>
+                        <p>Multiple secure payment options including UPI, net banking, credit/debit cards, and digital wallets.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                    <div style="height: 8px; background-color: var(--irctc-green);"></div>
+                    <div class="card-body text-center p-4">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; border: 2px solid var(--irctc-green);">
+                            <i class="fas fa-ticket-alt fa-2x" style="color: var(--irctc-green);"></i>
+                        </div>
+                        <h4 style="color: var(--irctc-blue);">Digital Tickets</h4>
+                        <p>Paperless e-tickets sent directly to your mobile. Easy to access, environment-friendly, and convenient.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5" style="background-color: #f1f5f9;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="color: var(--irctc-blue);">Book Tickets in 4 Simple Steps</h2>
+            <div class="mt-2" style="width: 120px; height: 4px; background-color: var(--irctc-yellow); margin: 0 auto;"></div>
+        </div>
+        
+        <div class="position-relative">
+            <!-- Connection Line -->
+            <div class="d-none d-md-block" style="position: absolute; top: 60px; left: 13%; right: 13%; height: 4px; background-color: #ddd; z-index: 0;"></div>
+            
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative z-1">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; background-color: var(--irctc-blue); z-index: 1; position: relative; border: 5px solid #f1f5f9;">
+                            <div class="position-absolute" style="top: -15px; right: -15px; background-color: var(--irctc-yellow); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--irctc-blue-dark);">1</div>
+                            <i class="fas fa-search fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 style="color: var(--irctc-blue);">Search Trains</h4>
+                    <p>Enter source, destination, and journey date to find available trains</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative z-1">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; background-color: var(--irctc-blue); z-index: 1; position: relative; border: 5px solid #f1f5f9;">
+                            <div class="position-absolute" style="top: -15px; right: -15px; background-color: var(--irctc-yellow); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--irctc-blue-dark);">2</div>
+                            <i class="fas fa-chair fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 style="color: var(--irctc-blue);">Choose Seats</h4>
+                    <p>Select your preferred seats from the available options</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative z-1">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; background-color: var(--irctc-blue); z-index: 1; position: relative; border: 5px solid #f1f5f9;">
+                            <div class="position-absolute" style="top: -15px; right: -15px; background-color: var(--irctc-yellow); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--irctc-blue-dark);">3</div>
+                            <i class="fas fa-user-friends fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 style="color: var(--irctc-blue);">Passenger Details</h4>
+                    <p>Add passenger information and special requirements</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative z-1">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; background-color: var(--irctc-blue); z-index: 1; position: relative; border: 5px solid #f1f5f9;">
+                            <div class="position-absolute" style="top: -15px; right: -15px; background-color: var(--irctc-yellow); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--irctc-blue-dark);">4</div>
+                            <i class="fas fa-rupee-sign fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 style="color: var(--irctc-blue);">Pay & Confirm</h4>
+                    <p>Complete payment and get your e-ticket instantly</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('search') }}" class="btn btn-lg" style="background-color: var(--irctc-blue); color: white;">
+                <i class="fas fa-arrow-right me-2"></i> Start Booking Now
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials py-5" style="background-color: var(--irctc-blue); color: white;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-white">Passenger Experiences</h2>
+            <div class="mt-2" style="width: 120px; height: 4px; background-color: var(--irctc-yellow); margin: 0 auto;"></div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; border-top: 4px solid #FF9933 !important;">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div style="color: var(--irctc-yellow);">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="card-text">"The IRCTC booking system is so convenient! I was able to book tickets for my entire family's trip from Mumbai to Delhi in minutes."</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            <div class="ms-3">
+                                <h6 class="mb-0">Rajesh Sharma</h6>
+                                <small class="text-muted">Mumbai, Maharashtra</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; border-top: 4px solid white !important;">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div style="color: var(--irctc-yellow);">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                        <p class="card-text">"I love that I can select my seat beforehand. The Rajdhani Express from Delhi to Kolkata was comfortable and punctual as promised."</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            <div class="ms-3">
+                                <h6 class="mb-0">Priya Patel</h6>
+                                <small class="text-muted">New Delhi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; border-top: 4px solid #138808 !important;">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div style="color: var(--irctc-yellow);">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="card-text">"The tatkal booking feature saved our family vacation! When our plans changed suddenly, we still managed to get tickets on the Shatabdi Express."</p>
+                        <div class="d-flex align-items-center mt-4">
+                            <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            <div class="ms-3">
+                                <h6 class="mb-0">Vijay Krishnan</h6>
+                                <small class="text-muted">Bangalore, Karnataka</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Indian Railways Facts Banner -->
+    <div class="container mt-5">
+        <div class="p-4 rounded" style="background-color: rgba(255,255,255,0.1);">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <h3 class="mb-0" style="color: var(--irctc-yellow);">68,000+</h3>
+                    <p class="mb-0">Kilometers of Route</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="mb-0" style="color: var(--irctc-yellow);">13,500+</h3>
+                    <p class="mb-0">Passenger Trains Daily</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="mb-0" style="color: var(--irctc-yellow);">7,000+</h3>
+                    <p class="mb-0">Stations Nationwide</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="mb-0" style="color: var(--irctc-yellow);">23+ Million</h3>
+                    <p class="mb-0">Passengers Daily</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Heritage Section -->
+<section class="py-5" style="background-color: #f1f5f9;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="color: var(--irctc-blue);">The Rich Heritage of Indian Railways</h2>
+            <div class="mt-2" style="width: 180px; height: 4px; background-color: var(--irctc-yellow); margin: 0 auto;"></div>
+        </div>
+        
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="position-relative">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Bombay_1853.jpg/1200px-Bombay_1853.jpg" alt="First Train in India - 1853" class="img-fluid rounded shadow" style="width: 100%;">
+                    <div class="position-absolute" style="bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px;">
+                        <p class="mb-0 small">First passenger train journey from Bombay to Thane - April 16, 1853</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 style="color: var(--irctc-blue);">From Steam to Speed: 170 Years of Progress</h4>
+                        <p>Indian Railways, one of the world's largest railway networks, began its illustrious journey on April 16, 1853, when the first passenger train steamed from Bombay's Bori Bunder to Thane, covering a distance of 34 kilometers. This modest beginning has evolved into a vast network that serves as the lifeline of the nation.</p>
+                        
+                        <div class="d-flex mb-3">
+                            <div style="min-width: 50px; height: 50px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-landmark"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 style="color: var(--irctc-blue);">Colonial Roots</h5>
+                                <p class="mb-0">Established during British colonial rule, the railways initially connected major port cities to inland regions, facilitating trade and administrative control.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-3">
+                            <div style="min-width: 50px; height: 50px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 style="color: var(--irctc-blue);">Post-Independence Growth</h5>
+                                <p class="mb-0">After 1947, Indian Railways unified into a national network, symbolizing the country's unity and progress, expanding to connect remote regions.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <div style="min-width: 50px; height: 50px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 style="color: var(--irctc-blue);">Modern Transformation</h5>
+                                <p class="mb-0">Today's Indian Railways features high-speed trains, luxury tourist trains, and advanced technology while preserving its heritage through UNESCO-recognized mountain railways and historic stations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historic Trains Carousel -->
+        <div class="mt-5">
+            <h4 class="text-center mb-4" style="color: var(--irctc-blue);">Iconic Indian Trains</h4>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Darjeeling_toy_train_DHR.jpg" class="card-img-top" alt="Darjeeling Himalayan Railway" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: var(--irctc-blue);">Darjeeling Himalayan Railway</h5>
+                            <p class="card-text">Known as the "Toy Train," this UNESCO World Heritage site began operations in 1881 and still winds through the stunning Himalayan foothills.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Palace_on_Wheels_at_Delhi_Cantt_railway_station.jpg/1200px-Palace_on_Wheels_at_Delhi_Cantt_railway_station.jpg" class="card-img-top" alt="Palace on Wheels" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: var(--irctc-blue);">Palace on Wheels</h5>
+                            <p class="card-text">Launched in 1982, this luxury tourist train recreates the royal travel experience of India's maharajas with opulent cabins and fine dining.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Bhopal_Shatabdi_Express_approaching_Mathura_Junction.jpg" class="card-img-top" alt="Shatabdi Express" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: var(--irctc-blue);">Shatabdi Express</h5>
+                            <p class="card-text">India's premier intercity trains introduced in 1988, providing high-speed connectivity between major cities with superior passenger comfort.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

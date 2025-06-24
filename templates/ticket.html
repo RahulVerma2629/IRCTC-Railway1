@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div id="ticket-container" class="mb-4" style="max-width: 800px; margin: 0 auto;">
+        <!-- IRCTC Ticket Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center">
+                <div class="me-3" style="width: 45px; height: 35px; overflow: hidden;">
+                    <div style="width: 100%; height: 33.33%; background-color: #FF9933;"></div>
+                    <div style="width: 100%; height: 33.33%; background-color: white; display: flex; justify-content: center; align-items: center;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; border: 1px solid #000080;"></div>
+                    </div>
+                    <div style="width: 100%; height: 33.33%; background-color: #138808;"></div>
+                </div>
+                <h4 class="mb-0">IRCTC Electronic Reservation Slip (ERS)</h4>
+            </div>
+            <div>
+                <button onclick="printTicket()" class="btn btn-sm" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                <a href="{{ url_for('download_ticket', booking_id=booking.id) }}" class="btn btn-sm" style="background-color: var(--irctc-blue); color: white;">
+                    <i class="fas fa-download me-1"></i> Download
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Ticket Container -->
+        <div class="card border shadow" style="border-radius: 0; overflow: hidden; border-color: #ccc !important;">
+            <!-- Ticket Header with IRCTC styling -->
+            <div style="background-color: var(--irctc-blue); color: white; position: relative; padding: 15px; border-bottom: 2px solid var(--irctc-yellow);">
+                <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+                
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <img src="https://www.irctc.co.in/nget/assets/images/logo.png" alt="IRCTC Logo" style="height: 40px; filter: brightness(0) invert(1);" class="me-2">
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold" style="font-size: 14px; line-height: 1.2;">INDIAN RAILWAY CATERING AND TOURISM CORPORATION LTD.</span>
+                                <span style="font-size: 11px;">A Govt. of India Enterprise</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col text-end">
+                        <span class="badge rounded-pill bg-white text-dark" style="font-size: 12px;">E-TICKET</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- E-Ticket Banner -->
+            <div style="background-color: #f1f5f9; border-bottom: 1px solid #ddd; padding: 8px 15px;">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <span class="me-3 fw-bold" style="color: var(--irctc-blue);">PNR:</span>
+                            <span class="fw-bold" style="color: var(--irctc-blue); font-size: 18px; letter-spacing: 1px;">{{ booking.booking_number }}</span>
+                            <span class="badge rounded-pill ms-2" style="background-color: var(--irctc-green); color: white; font-size: 11px;">
+                                {{ booking.status | upper }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <span class="badge bg-light text-dark border me-2" style="font-size: 11px;">
+                            <i class="far fa-calendar-alt me-1" style="color: var(--irctc-blue);"></i> 
+                            Transaction Date: {{ booking.booking_date.strftime('%d-%b-%Y') }}
+                        </span>
+                        <span class="badge bg-light text-dark border" style="font-size: 11px;">
+                            <i class="far fa-clock me-1" style="color: var(--irctc-blue);"></i> 
+                            {{ booking.booking_date.strftime('%H:%M:%S') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Train Details -->
+            <div class="card-body p-0">
+                <!-- Lead Passenger Info -->
+                <div class="p-3 border-bottom" style="background-color: #f8f9fa;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-0 small">
+                                <span class="fw-bold">LEAD PASSENGER:</span> 
+                                {% if booking_details|length > 0 %}
+                                    {{ booking_details[0].detail.passenger_name }} ({{ booking_details[0].detail.passenger_age }}), 
+                                    {{ booking_details[0].detail.passenger_gender | capitalize }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <p class="mb-0 small">
+                                <span class="fw-bold">BOOKED BY:</span> {{ current_user.username }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Train Info Banner -->
+                <div class="p-3 border-bottom" style="background-color: #e8f4ff;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 style="color: var(--irctc-blue); font-weight: 600; margin-bottom: 5px;">{{ train.name }} ({{ train.number }})</h5>
+                            <div class="d-flex flex-wrap">
+                                <span class="badge bg-danger me-2 mb-1">{{ origin.code }}</span>
+                                <span class="text-muted small me-2">to</span>
+                                <span class="badge bg-success me-2 mb-1">{{ destination.code }}</span>
+                                <span class="badge bg-light text-dark border mb-1" style="font-size: 11px;">
+                                    Class: 
+                                    {% if 'A' in booking_details[0].seat.seat_number[0] %}
+                                        AC
+                                    {% elif 'S' in booking_details[0].seat.seat_number[0] %}
+                                        Sleeper
+                                    {% else %}
+                                        General
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-inline-block text-center p-2" style="border: 1px dashed var(--irctc-blue); border-radius: 4px; background-color: rgba(0, 82, 159, 0.05);">
+                                <p class="mb-0 small text-muted"><strong>DOJ</strong></p>
+                                <p class="mb-0" style="color: var(--irctc-blue); font-weight: bold;">{{ schedule.date.strftime('%d-%b-%Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Journey Details -->
+                <div class="p-3 border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <div class="text-center p-2 rounded" style="background-color: #f8f9fa;">
+                                <h6 class="text-muted mb-1">FROM</h6>
+                                <h5 style="color: var(--irctc-blue);">{{ origin.name }} ({{ origin.code }})</h5>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div style="min-width: 30px; height: 30px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </div>
+                                    <div class="mx-2">
+                                        <span class="badge bg-light text-dark border">DEP</span>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0" style="color: var(--irctc-blue);">{{ train.departure_time.strftime('%H:%M') }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <!-- Calculate journey duration -->
+                            {% set dep_time = train.departure_time %}
+                            {% set arr_time = train.arrival_time %}
+                            {% set duration_mins = (arr_time.hour * 60 + arr_time.minute) - (dep_time.hour * 60 + dep_time.minute) %}
+                            {% if duration_mins < 0 %}
+                                {% set duration_mins = duration_mins + 24*60 %}
+                            {% endif %}
+                            {% set duration_hrs = (duration_mins // 60) %}
+                            {% set duration_mins = duration_mins % 60 %}
+                            
+                            <div class="position-relative py-2">
+                                <div style="width: 2px; height: 50px; background-color: var(--irctc-blue); margin: 0 auto;"></div>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 5px 10px; border: 1px dashed var(--irctc-blue); border-radius: 4px;">
+                                    <span class="small" style="white-space: nowrap; color: var(--irctc-blue);">{{ duration_hrs }}h {{ duration_mins }}m</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="text-center p-2 rounded" style="background-color: #f8f9fa;">
+                                <h6 class="text-muted mb-1">TO</h6>
+                                <h5 style="color: var(--irctc-blue);">{{ destination.name }} ({{ destination.code }})</h5>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div style="min-width: 30px; height: 30px; background-color: var(--irctc-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="mx-2">
+                                        <span class="badge bg-light text-dark border">ARR</span>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0" style="color: var(--irctc-blue);">{{ train.arrival_time.strftime('%H:%M') }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Passenger Details -->
+                <div class="p-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 style="color: var(--irctc-blue); font-size: 16px; font-weight: 600;">
+                            <i class="fas fa-users me-2"></i> PASSENGER DETAILS
+                        </h5>
+                        <div>
+                            <span class="badge" style="background-color: var(--irctc-green); font-size: 0.8rem;">
+                                <i class="fas fa-check-circle me-1"></i> CNF
+                            </span>
+                            <span class="badge bg-light text-dark border ms-1" style="font-size: 0.8rem;">
+                                <i class="fas fa-chair me-1" style="color: var(--irctc-blue);"></i> 
+                                {% if booking_details|length > 0 %}
+                                    Coach: {{ booking_details[0].seat.seat_number[0] }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive" style="border: 1px solid #dee2e6; overflow: hidden;">
+                        <table class="table table-bordered mb-0">
+                            <thead style="background-color: var(--irctc-blue); color: white;">
+                                <tr>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">S.No</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Name</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Age</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Gender</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Booking Status</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Current Status</th>
+                                    <th class="fw-medium py-2" style="font-size: 13px;">Seat No</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detail in booking_details %}
+                                    <tr>
+                                        <td style="font-size: 13px;">{{ loop.index }}</td>
+                                        <td style="font-size: 13px;">{{ detail.detail.passenger_name }}</td>
+                                        <td style="font-size: 13px;">{{ detail.detail.passenger_age }}</td>
+                                        <td style="font-size: 13px;">{{ detail.detail.passenger_gender | capitalize }}</td>
+                                        <td style="font-size: 13px;"><span class="text-success fw-bold">CNF</span></td>
+                                        <td style="font-size: 13px;"><span class="text-success fw-bold">CNF</span></td>
+                                        <td style="font-size: 13px;"><strong>{{ detail.seat.seat_number }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Fare Details -->
+                <div class="p-3 border-bottom">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 style="color: var(--irctc-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px;">
+                                <i class="fas fa-rupee-sign me-2"></i> FARE DETAILS
+                            </h5>
+                            <div style="border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;">
+                                <table class="table table-bordered mb-0">
+                                    <thead style="background-color: #f1f5f9;">
+                                        <tr>
+                                            <th style="font-size: 13px; font-weight: 600;">Ticket Fare</th>
+                                            <th style="font-size: 13px; font-weight: 600;" class="text-end">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-size: 13px;">Base Fare ({{ booking.total_passengers }} Passenger)</td>
+                                            <td style="font-size: 13px;" class="text-end"><i class="fas fa-rupee-sign fa-sm"></i> {{ train.price * booking.total_passengers }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 13px;">Reservation Charge</td>
+                                            <td style="font-size: 13px;" class="text-end"><i class="fas fa-rupee-sign fa-sm"></i> 20.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 13px;">Superfast Charge</td>
+                                            <td style="font-size: 13px;" class="text-end"><i class="fas fa-rupee-sign fa-sm"></i> 45.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 13px;">GST</td>
+                                            <td style="font-size: 13px;" class="text-end"><i class="fas fa-rupee-sign fa-sm"></i> 32.50</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size: 13px;">Catering Charge</td>
+                                            <td style="font-size: 13px;" class="text-end"><i class="fas fa-rupee-sign fa-sm"></i> 0.00</td>
+                                        </tr>
+                                        <tr style="background-color: #f1f5f9;">
+                                            <td style="font-size: 14px; font-weight: bold;">Total Amount</td>
+                                            <td style="font-size: 14px; font-weight: bold; color: var(--irctc-blue);" class="text-end"><i class="fas fa-rupee-sign"></i> {{ booking.total_amount }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="alert mb-0 h-100" style="background-color: rgba(0, 82, 159, 0.05); border-left: 3px solid var(--irctc-blue); border-radius: 4px;">
+                                <h5 style="color: var(--irctc-blue); font-size: 16px; font-weight: 600; margin-bottom: 10px;">
+                                    <i class="fas fa-info-circle me-2"></i> IMPORTANT INFORMATION
+                                </h5>
+                                <ol class="ps-3 mb-2" style="font-size: 13px;">
+                                    <li class="mb-2">E-ticket passenger is permitted in the train against a berth/seat only when his/her name appears in the reservation chart.</li>
+                                    <li class="mb-2">One of the passengers booked on an e-ticket is required to present any of the prescribed identity cards in original during the journey.</li>
+                                    <li class="mb-2">The accommodation booked is not transferable and is valid only if one of the IDs noted above is presented during the journey.</li>
+                                    <li class="mb-2">Passengers are advised to carry the SMS/print-out of the ERS along with the prescribed ID in original.</li>
+                                </ol>
+                                
+                                <div style="background-color: #f0f0f0; border-radius: 4px; padding: 8px 12px; margin-top: 10px;">
+                                    <p class="mb-0" style="font-size: 12px; font-weight: 600; color: var(--irctc-blue);">
+                                        <i class="fas fa-exclamation-triangle me-1" style="color: orange;"></i>
+                                        RAIL TRAVEL INSURANCE: Passengers are advised to make note of the insurance company name and policy number for future reference.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ticket Footer -->
+                <div style="background-color: var(--irctc-blue-light); color: white; border: none; padding: 10px 15px;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-0 small">
+                                <i class="fas fa-headset me-1"></i> For customer support: E-mail: care@irctc.co.in | Customer Care: 0755-6610661, 0755-4090600
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <p class="mb-0 small">
+                                <i class="fas fa-phone-alt me-1"></i> Railway Emergency Contact: 139
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('bookings') }}" class="btn" style="background-color: var(--irctc-blue); color: white;">
+                <i class="fas fa-arrow-left me-1"></i> My Bookings
+            </a>
+            {% if booking.status == 'confirmed' %}
+                <button type="button" class="btn" style="background-color: var(--irctc-red); color: white;"
+                        onclick="confirmCancellation('{{ booking.id }}', '{{ booking.booking_number }}')">
+                    <i class="fas fa-times me-1"></i> Cancel Ticket
+                </button>
+                <form id="cancel-form-{{ booking.id }}" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="post" class="d-none"></form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #ticket-container, #ticket-container * {
+        visibility: visible;
+    }
+    #ticket-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

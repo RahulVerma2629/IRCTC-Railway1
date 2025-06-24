@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Add New Train</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_add_train') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Train Name</label>
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control", placeholder="e.g. Express Bullet") }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="number" class="form-label">Train Number</label>
+                        {% if form.number.errors %}
+                            {{ form.number(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.number.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.number(class="form-control", placeholder="e.g. EXP1234") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="origin_id" class="form-label">Origin Station</label>
+                        {% if form.origin_id.errors %}
+                            {{ form.origin_id(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.origin_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.origin_id(class="form-select") }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="destination_id" class="form-label">Destination Station</label>
+                        {% if form.destination_id.errors %}
+                            {{ form.destination_id(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.destination_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.destination_id(class="form-select") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="departure_time" class="form-label">Departure Time</label>
+                        {% if form.departure_time.errors %}
+                            {{ form.departure_time(class="form-control is-invalid", type="time") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.departure_time.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.departure_time(class="form-control", type="time") }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="arrival_time" class="form-label">Arrival Time</label>
+                        {% if form.arrival_time.errors %}
+                            {{ form.arrival_time(class="form-control is-invalid", type="time") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.arrival_time.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.arrival_time(class="form-control", type="time") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="total_seats" class="form-label">Total Seats</label>
+                        {% if form.total_seats.errors %}
+                            {{ form.total_seats(class="form-control is-invalid", type="number", min="1") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.total_seats.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.total_seats(class="form-control", type="number", min="1", placeholder="e.g. 60") }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Ticket Price ($)</label>
+                        {% if form.price.errors %}
+                            {{ form.price(class="form-control is-invalid", type="number", step="0.01", min="0.01") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.price.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.price(class="form-control", type="number", step="0.01", min="0.01", placeholder="e.g. 49.99") }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin_trains') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Trains
+                    </a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Adding a New Train</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Train Schedules</h6>
+                            <p class="small text-muted">After adding a train, you can create schedules for specific dates.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-chair fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Seating</h6>
+                            <p class="small text-muted">Seats will be automatically generated based on the total seat count.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6>Pricing</h6>
+                            <p class="small text-muted">The set price will apply to all passengers booking this train.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

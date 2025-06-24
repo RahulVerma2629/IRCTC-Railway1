@@ -1,0 +1,295 @@
+/* Custom styles for Indian Railways Booking Application */
+
+:root {
+    --irctc-blue: #00529F;
+    --irctc-blue-dark: #003b73;
+    --irctc-blue-light: #2579cf;
+    --irctc-red: #D81E05;
+    --irctc-yellow: #F59E0B;
+    --irctc-green: #10B981;
+    --accent-color: #F59E0B;
+}
+
+/* Override Bootstrap Variables */
+[data-bs-theme="dark"] {
+    --bs-primary: var(--irctc-blue);
+    --bs-primary-rgb: 0, 82, 159;
+    --bs-secondary: var(--irctc-red);
+    --bs-secondary-rgb: 216, 30, 5;
+    --bs-success: var(--irctc-green);
+    --bs-success-rgb: 16, 185, 129;
+    --bs-warning: var(--irctc-yellow);
+    --bs-warning-rgb: 245, 158, 11;
+}
+
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.train-card {
+    transition: transform 0.2s;
+    border-left: 4px solid var(--irctc-blue);
+    position: relative;
+    overflow: hidden;
+}
+
+.train-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background-image: linear-gradient(to bottom, 
+        var(--irctc-blue) 33.33%, 
+        white 33.33%, white 66.66%, 
+        var(--irctc-green) 66.66%);
+    opacity: 0.7;
+}
+
+.train-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.badge-irctc {
+    background-color: var(--irctc-blue);
+    color: white;
+}
+
+.booking-status-confirmed {
+    color: var(--irctc-green);
+}
+
+.booking-status-cancelled {
+    color: var(--irctc-red);
+}
+
+.booking-status-completed {
+    color: var(--irctc-blue);
+}
+
+/* Navbar Customization */
+.navbar-dark.bg-dark.indian-railway-navbar {
+    background-color: var(--irctc-blue) !important;
+    background-image: linear-gradient(to right, var(--irctc-blue-dark), var(--irctc-blue), var(--irctc-blue-light));
+}
+
+.brand-logo {
+    position: relative;
+    padding-left: 40px;
+}
+
+.brand-logo .indian-flag-colors {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.flag-color {
+    height: 33.33%;
+    width: 100%;
+}
+
+.flag-color.saffron {
+    background-color: #FF9933;
+}
+
+.flag-color.white {
+    background-color: #FFFFFF;
+}
+
+.flag-color.green {
+    background-color: #138808;
+}
+
+/* Seat Selection Styles */
+.seat-map {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.seat-group {
+    display: flex;
+    gap: 10px;
+}
+
+.seat {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--bs-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: var(--bs-light);
+    color: var(--bs-dark);
+}
+
+.seat.available {
+    background-color: var(--bs-success);
+    color: white;
+}
+
+.seat.booked {
+    background-color: var(--bs-secondary);
+    color: var(--bs-light);
+    cursor: not-allowed;
+}
+
+.seat.selected {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("https://source.unsplash.com/1600x900/?indian,railway") no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 100px 0;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background-image: linear-gradient(to right, 
+        var(--irctc-blue) 33.33%, 
+        white 33.33%, white 66.66%, 
+        var(--irctc-green) 66.66%);
+}
+
+/* Footer */
+.footer {
+    margin-top: 50px;
+    padding: 20px 0;
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+/* Ticket Styles */
+.ticket-container {
+    border: 1px solid var(--bs-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ticket-header {
+    background-color: var(--bs-primary);
+    color: white;
+    padding: 15px;
+    position: relative;
+}
+
+.ticket-body {
+    padding: 20px;
+}
+
+.ticket-footer {
+    background-color: var(--bs-light);
+    padding: 15px;
+    border-top: 1px dashed var(--bs-secondary);
+}
+
+.dotted-line {
+    border-top: 1px dashed var(--bs-secondary);
+    margin: 15px 0;
+}
+
+/* Train Schedule Badge */
+.schedule-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    background-color: var(--bs-info);
+    color: white;
+}
+
+/* Admin Dashboard */
+.stat-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: var(--bs-light);
+    border-left: 4px solid var(--bs-primary);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--bs-primary);
+}
+
+.stat-card .stat-count {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Helper classes */
+.railway-theme-primary {
+    color: var(--bs-primary);
+}
+
+.text-highlight {
+    font-weight: bold;
+    color: var(--bs-primary);
+}
+
+.vertical-divider {
+    border-left: 1px solid var(--bs-secondary);
+    height: 20px;
+    margin: 0 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .seat {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .seat-row {
+        gap: 5px;
+    }
+    
+    .seat-group {
+        gap: 5px;
+    }
+    
+    .hero-section {
+        padding: 50px 0;
+    }
+}

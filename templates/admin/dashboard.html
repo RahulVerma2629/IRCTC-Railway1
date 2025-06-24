@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i> Admin Dashboard</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-user-shield me-2"></i> Welcome back, <strong>{{ current_user.username }}</strong>!
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 col-6">
+                            <div class="stat-card">
+                                <i class="fas fa-users"></i>
+                                <div class="stat-count">{{ total_users }}</div>
+                                <div class="stat-label">Users</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-card">
+                                <i class="fas fa-train"></i>
+                                <div class="stat-count">{{ total_trains }}</div>
+                                <div class="stat-label">Trains</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-card">
+                                <i class="fas fa-ticket-alt"></i>
+                                <div class="stat-count">{{ total_bookings }}</div>
+                                <div class="stat-label">Bookings</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-card">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div class="stat-count">{{ total_stations }}</div>
+                                <div class="stat-label">Stations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('admin_trains') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-train me-2"></i> Manage Trains
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('admin_add_train') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-plus me-2"></i> Add New Train
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-users me-2"></i> Manage Users
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-ticket-alt me-2"></i> View All Bookings
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-cog me-2"></i> System Settings
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i> Recent Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Booking #</th>
+                                        <th>User</th>
+                                        <th>Train</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                        <tr>
+                                            <td>{{ booking.booking.booking_number }}</td>
+                                            <td>{{ booking.user.username }}</td>
+                                            <td>{{ booking.train.number }}</td>
+                                            <td>{{ booking.date.strftime('%d %b, %Y') }}</td>
+                                            <td>
+                                                <span class="badge booking-status-{{ booking.booking.status }}">
+                                                    {{ booking.booking.status | capitalize }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary">View All Bookings</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No recent bookings found.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-server fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Database Status</h6>
+                                    <p class="mb-0"><span class="badge bg-success">Connected</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-hdd fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Storage</h6>
+                                    <p class="mb-0">Usage: <span class="text-success">32%</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-memory fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Memory</h6>
+                                    <p class="mb-0">Usage: <span class="text-success">45%</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

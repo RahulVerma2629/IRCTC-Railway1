@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-search me-2"></i> Search Trains</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('search') }}" onsubmit="return validateSearchForm()">
+                        {{ form.hidden_tag() }}
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="origin" class="form-label">From</label>
+                                {% if form.origin.errors %}
+                                    {{ form.origin(class="form-select is-invalid", id="origin") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.origin.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.origin(class="form-select", id="origin") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <label for="destination" class="form-label">To</label>
+                                {% if form.destination.errors %}
+                                    {{ form.destination(class="form-select is-invalid", id="destination") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.destination.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.destination(class="form-select", id="destination") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label for="date" class="form-label">Date</label>
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid", id="date", type="date") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control", id="date", type="date") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div id="search-error" class="alert alert-danger mt-3 d-none"></div>
+                        
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Travel Tips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-calendar-check fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Book in Advance</h6>
+                                    <p class="small text-muted">Book tickets at least 1-2 weeks in advance for better seat availability.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-clock fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Arrive Early</h6>
+                                    <p class="small text-muted">Arrive at the station at least 30 minutes before departure.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-id-card fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6>Carry ID Proof</h6>
+                                    <p class="small text-muted">Always carry a valid ID proof matching the name on your ticket.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i> Popular Routes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6>New York to Boston</h6>
+                                    <p class="small text-muted">3.5 hours journey, multiple trains daily</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-info">Popular</span>
+                                        <button class="btn btn-sm btn-outline-primary">Check Trains</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6>Washington DC to New York</h6>
+                                    <p class="small text-muted">3 hours journey, hourly service</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-info">Popular</span>
+                                        <button class="btn btn-sm btn-outline-primary">Check Trains</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6>Chicago to Milwaukee</h6>
+                                    <p class="small text-muted">1.5 hours journey, frequent service</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-info">Popular</span>
+                                        <button class="btn btn-sm btn-outline-primary">Check Trains</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

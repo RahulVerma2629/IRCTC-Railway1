@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Booking Confirmation Card -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <!-- Header with Indian Railways branding -->
+        <div style="background-color: var(--irctc-green); color: white; position: relative; padding: 20px;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <img src="https://www.irctc.co.in/nget/assets/images/logo.png" alt="IRCTC Logo" style="height: 40px; filter: brightness(0) invert(1);" class="me-3">
+                </div>
+                <div class="col">
+                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Booking Successfully Confirmed!</h4>
+                    <p class="mb-0 small">Transaction Completed - Indian Railways</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <!-- PNR Success Banner -->
+            <div class="mb-4 p-3 text-center" style="background-color: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px dashed var(--irctc-green);">
+                <div style="display: inline-block; background-color: var(--irctc-green); color: white; padding: 8px 16px; border-radius: 20px; margin-bottom: 10px;">
+                    <i class="fas fa-check-circle me-2"></i> E-TICKET BOOKED SUCCESSFULLY
+                </div>
+                <h5 class="mb-2" style="color: var(--irctc-blue);">PNR NUMBER: <strong>{{ booking.booking_number }}</strong></h5>
+                <p class="small text-muted mb-0">A copy of the E-Ticket has been sent to your registered email address</p>
+            </div>
+            
+            <!-- Journey Details -->
+            <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--irctc-blue);">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="min-width: 45px; height: 45px; border-radius: 50%; background-color: var(--irctc-blue); color: white; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 style="color: var(--irctc-blue);">{{ train.name }} <span class="badge bg-light text-dark border">{{ train.number }}</span></h5>
+                                <div>
+                                    <span class="badge bg-danger">{{ origin.code }}</span>
+                                    <i class="fas fa-arrow-right mx-2"></i>
+                                    <span class="badge bg-success">{{ destination.code }}</span>
+                                    <span class="small ms-2 text-muted">{{ origin.name }} to {{ destination.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="me-4">
+                                <div class="small text-muted mb-1">DATE</div>
+                                <div><i class="fas fa-calendar-alt me-1" style="color: var(--irctc-blue);"></i> {{ schedule.date.strftime('%d %b %Y') }}</div>
+                            </div>
+                            <div class="me-4">
+                                <div class="small text-muted mb-1">DEPARTURE</div>
+                                <div><i class="fas fa-clock me-1" style="color: var(--irctc-blue);"></i> {{ train.departure_time.strftime('%H:%M') }}</div>
+                            </div>
+                            <div>
+                                <div class="small text-muted mb-1">ARRIVAL</div>
+                                <div><i class="fas fa-clock me-1" style="color: var(--irctc-blue);"></i> {{ train.arrival_time.strftime('%H:%M') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-end">
+                        <div class="d-inline-block text-center p-3" style="border: 1px dashed var(--irctc-blue); border-radius: 8px;">
+                            <div class="small text-muted mb-1">TOTAL FARE</div>
+                            <h4 style="color: var(--irctc-blue);"><i class="fas fa-rupee-sign me-1"></i> {{ booking.total_amount }}</h4>
+                            <div class="small text-muted mb-0">{{ booking.total_passengers }} Passenger(s)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Passenger Details -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 style="color: var(--irctc-blue);">
+                        <i class="fas fa-users me-2"></i> Passenger Details
+                    </h5>
+                    <span class="badge rounded-pill" style="background-color: var(--irctc-green); font-size: 0.8rem;">
+                        <i class="fas fa-check-circle me-1"></i> CONFIRMED
+                    </span>
+                </div>
+                
+                <div class="table-responsive" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                    <table class="table table-striped mb-0">
+                        <thead style="background-color: var(--irctc-blue); color: white;">
+                            <tr>
+                                <th class="fw-medium">S.No</th>
+                                <th class="fw-medium">Name</th>
+                                <th class="fw-medium">Age</th>
+                                <th class="fw-medium">Gender</th>
+                                <th class="fw-medium">Coach</th>
+                                <th class="fw-medium">Seat No</th>
+                                <th class="fw-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in booking_details %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ detail.detail.passenger_name }}</td>
+                                    <td>{{ detail.detail.passenger_age }}</td>
+                                    <td>{{ detail.detail.passenger_gender | capitalize }}</td>
+                                    <td>{{ detail.seat.seat_number[0] }}</td>
+                                    <td><strong>{{ detail.seat.seat_number }}</strong></td>
+                                    <td><span class="badge bg-success">CNF</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Ticket Actions -->
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('ticket', booking_id=booking.id) }}" class="btn" style="background-color: var(--irctc-blue); color: white;">
+                    <i class="fas fa-ticket-alt me-1"></i> View E-Ticket
+                </a>
+                <a href="{{ url_for('download_ticket', booking_id=booking.id) }}" class="btn" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);">
+                    <i class="fas fa-download me-1"></i> Download E-Ticket
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Important Information Card -->
+    <div class="card border-0 shadow mb-4" style="border-radius: 10px; overflow: hidden;">
+        <div class="card-header" style="background-color: var(--irctc-blue); color: white; position: relative;">
+            <div style="position: absolute; top: 0; right: 0; width: 15px; height: 100%; background-image: linear-gradient(to bottom, #FF9933 33.33%, white 33.33%, white 66.66%, #138808 66.66%);"></div>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Important Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-print"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">E-Ticket Guidelines</h6>
+                            <p class="small text-muted mb-0">Print your E-ticket or show an electronic version on your mobile during the journey along with a valid ID proof in original.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--irctc-blue-dark);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">Reach Early</h6>
+                            <p class="small text-muted mb-0">Arrive at the station at least 30 minutes before departure time to clear security checks and locate your platform.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex">
+                        <div class="me-3" style="min-width: 45px; height: 45px; background-color: var(--irctc-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--irctc-blue);">ID Verification</h6>
+                            <p class="small text-muted mb-0">Carry a valid government-issued Photo ID (Aadhaar, PAN, Voter ID, Driving License or Passport) for ticket verification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Indian Railways Specific Information -->
+            <div class="mt-4">
+                <div class="alert" style="background-color: rgba(0, 82, 159, 0.1); border-left: 3px solid var(--irctc-blue); border-radius: 4px;">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/8/83/Indian_Railways_Logo_2.svg" alt="Indian Railways" style="height: 30px;" class="me-2">
+                        <h6 class="mb-0" style="color: var(--irctc-blue);">Indian Railways Additional Services</h6>
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <ul class="small mb-0 ps-3">
+                                <li>Dial 139 for PNR status enquiry, train arrival/departure information, and other IRCTC services.</li>
+                                <li>Free Wi-Fi services are available at many major railway stations across India.</li>
+                                <li>Download the "IRCTC Rail Connect" mobile app to check real-time train status.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="small mb-0 ps-3">
+                                <li>E-catering services available through the IRCTC E-catering app or website.</li>
+                                <li>Bedroll kit is provided in AC classes. Sleeper class passengers may request at an additional charge.</li>
+                                <li>For any complaints or feedback, use "Rail Madad" app or website.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Return to Booking Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('bookings') }}" class="btn" style="background-color: var(--irctc-blue); color: white;">
+                    <i class="fas fa-list me-1"></i> View All My Bookings
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-home me-1"></i> Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

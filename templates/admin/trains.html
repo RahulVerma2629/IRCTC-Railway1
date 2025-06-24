@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-train me-2"></i> Manage Trains</h4>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5>All Trains</h5>
+                <a href="{{ url_for('admin_add_train') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Add New Train
+                </a>
+            </div>
+            
+            {% if trains %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Train Number</th>
+                                <th>Name</th>
+                                <th>Route</th>
+                                <th>Departure</th>
+                                <th>Arrival</th>
+                                <th>Seats</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for train in trains %}
+                                <tr>
+                                    <td>{{ train.train.number }}</td>
+                                    <td>{{ train.train.name }}</td>
+                                    <td>
+                                        {{ train.origin.code }} → {{ train.destination.code }}
+                                        <small class="d-block text-muted">{{ train.origin.name }} to {{ train.destination.name }}</small>
+                                    </td>
+                                    <td>{{ train.train.departure_time.strftime('%H:%M') }}</td>
+                                    <td>{{ train.train.arrival_time.strftime('%H:%M') }}</td>
+                                    <td>{{ train.train.total_seats }}</td>
+                                    <td>${{ train.train.price }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin_edit_train', train_id=train.train.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteTrain({{ train.train.id }}, '{{ train.train.number }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <form id="delete-train-{{ train.train.id }}" action="{{ url_for('admin_delete_train', train_id=train.train.id) }}" method="post" class="d-none"></form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No trains found in the system.
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('admin_add_train') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Add Your First Train
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block additionaljs %}
+<script>
+    function confirmDeleteTrain(trainId, trainNumber) {
+        if (confirm(`Are you sure you want to delete train ${trainNumber}? This action cannot be undone.`)) {
+            document.getElementById(`delete-train-${trainId}`).submit();
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

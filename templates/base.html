@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if title %}{{ title }} - {% endif %}Indian Railways (IRCTC) Booking</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Google Fonts - Poppins -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block additionalcss %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark indian-railway-navbar">
+        <div class="container">
+            <a class="navbar-brand brand-logo" href="{{ url_for('index') }}">
+                <div class="indian-flag-colors">
+                    <div class="flag-color saffron"></div>
+                    <div class="flag-color white"></div>
+                    <div class="flag-color green"></div>
+                </div>
+                <i class="fas fa-train me-2"></i>
+                <span class="fw-bold">IRCTC</span> Railway
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('search') }}">
+                            <i class="fas fa-search me-1"></i> Search Trains
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('bookings') }}">
+                                <i class="fas fa-ticket-alt me-1"></i> My Bookings
+                            </a>
+                        </li>
+                        {% if current_user.is_admin %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-1"></i> Admin Panel
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-headset me-1"></i> Helpline
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('bookings') }}"><i class="fas fa-ticket-alt me-2"></i> My Bookings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-5" style="background-color: var(--irctc-blue-dark); color: white;">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="indian-flag-colors me-3" style="width: 40px; height: 25px;">
+                            <div class="flag-color saffron"></div>
+                            <div class="flag-color white"></div>
+                            <div class="flag-color green"></div>
+                        </div>
+                        <h5 class="mb-0"><i class="fas fa-train me-2"></i> IRCTC Railway</h5>
+                    </div>
+                    <p>The official Indian Railway Catering and Tourism Corporation portal for booking train tickets across India.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-light text-dark me-2">24x7 Helpline</span>
+                        <span class="badge bg-light text-dark me-2">PNR Status</span>
+                        <span class="badge bg-light text-dark">Train Schedule</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="border-start border-3 ps-2" style="border-color: var(--irctc-yellow) !important;">Popular Routes</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('search') }}" class="text-white text-decoration-none"><i class="fas fa-arrow-right me-1" style="color: var(--irctc-yellow);"></i> Delhi to Mumbai</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-white text-decoration-none"><i class="fas fa-arrow-right me-1" style="color: var(--irctc-yellow);"></i> Chennai to Bangalore</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-white text-decoration-none"><i class="fas fa-arrow-right me-1" style="color: var(--irctc-yellow);"></i> Kolkata to Delhi</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-white text-decoration-none"><i class="fas fa-arrow-right me-1" style="color: var(--irctc-yellow);"></i> Mumbai to Goa</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-white text-decoration-none"><i class="fas fa-arrow-right me-1" style="color: var(--irctc-yellow);"></i> Hyderabad to Chennai</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="border-start border-3 ps-2" style="border-color: var(--irctc-yellow) !important;">Contact IRCTC</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-map-marker-alt me-2" style="color: var(--irctc-yellow);"></i> IRCTC Corporate Office, New Delhi</li>
+                        <li><i class="fas fa-phone me-2" style="color: var(--irctc-yellow);"></i> Helpline: 139</li>
+                        <li><i class="fas fa-envelope me-2" style="color: var(--irctc-yellow);"></i> care@irctc.co.in</li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-sm" style="background-color: var(--irctc-yellow); color: var(--irctc-blue-dark);"><i class="fas fa-headset me-1"></i> Customer Care</a>
+                        <a href="#" class="btn btn-sm btn-outline-light ms-2"><i class="fas fa-question-circle me-1"></i> FAQs</a>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-3 mb-3" style="background-color: rgba(255,255,255,0.1); height: 1px; border: none;">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023 Indian Railways | IRCTC Official Website</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="#" class="text-white text-decoration-none small">Privacy Policy</a>
+                        <a href="#" class="text-white text-decoration-none small">Terms of Service</a>
+                        <a href="#" class="text-white text-decoration-none small">Sitemap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="height: 5px; background-image: linear-gradient(to right, 
+            var(--irctc-blue) 33.33%, 
+            white 33.33%, white 66.66%, 
+            var(--irctc-green) 66.66%);"></div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    {% block additionaljs %}{% endblock %}
+</body>
+</html>
